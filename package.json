@@ -1,7 +1,7 @@
 {
   "name": "city_bike_app_front",
   "version": "0.1.0",
-  "homepage": "https://arinasold.github.io/BikeStatisticsFrontEnd/",
+  "homepage": "https://arinasold.github.io/BikeStatisticsFrontEnd",
   "private": true,
   "dependencies": {
     "@testing-library/jest-dom": "^5.16.5",
@@ -23,7 +23,6 @@
     "eject": "react-scripts eject",
     "predeploy": "npm run build",
     "deploy": "gh-pages -d build"
-
   },
   "eslintConfig": {
     "extends": [
@@ -42,5 +41,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "gh-pages": "^5.0.0"
   }
 }
