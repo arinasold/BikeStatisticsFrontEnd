@@ -3,13 +3,14 @@ import { AgGridReact } from 'ag-grid-react';
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-material.css';
 import { format } from 'date-fns';
+import { Box, CircularProgress, Pagination } from '@mui/material';
 
 export default function Journeys() {
   const [journeys, setJourneys] = useState([]);
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
-  const pageSize = 25;
+  const pageSize = 10;
 
   const getJourneys = (page) => {
     setIsLoading(true);
@@ -31,13 +32,20 @@ export default function Journeys() {
     getJourneys(currentPage);
   }, [currentPage]);
 
+  const formatDistance = (distance) => {
+    const distanceInKm = distance / 1000; // Convert meters to kilometers
+    return `${distanceInKm.toFixed(2)} km`;
+  };
+
+  const formatDuration = (duration) => {
+    const durationInMinutes = duration / 60; // Convert seconds to minutes
+    return `${durationInMinutes.toFixed(0)} min`;
+  };
+
   const columnDefs = [
     {
       headerName: 'Departure Date',
       field: 'journey.departureDate',
-      sortable: true,
-      filter: true,
-      floatingFilter: true,
       width: 200,
       valueFormatter: ({ value }) => {
         const departureDate = value;
@@ -47,9 +55,6 @@ export default function Journeys() {
     {
       headerName: 'Return Date',
       field: 'journey.returnDate',
-      sortable: true,
-      filter: true,
-      floatingFilter: true,
       width: 200,
       valueFormatter: ({ value }) => {
         const returnDate = value;
@@ -59,69 +64,60 @@ export default function Journeys() {
     {
       headerName: 'Departure Station',
       field: 'departureStationName',
-      sortable: true,
-      filter: true,
-      floatingFilter: true,
       width: 200
     },
     {
       headerName: 'Return Station',
       field: 'returnStationName',
-      sortable: true,
-      filter: true,
-      floatingFilter: true,
       width: 200
     },
     {
       headerName: 'Distance',
       field: 'journey.distance',
-      sortable: true,
-      filter: true,
-      floatingFilter: true,
-      width: 200
+      width: 200,
+      valueFormatter: ({ value }) => formatDistance(value)
     },
     {
       headerName: 'Duration',
       field: 'journey.duration',
-      sortable: true,
-      filter: true,
-      floatingFilter: true,
-      width: 150
+      width: 150,
+      valueFormatter: ({ value }) => formatDuration(value)
     }
   ];
   
-  const handlePreviousPage = () => {
-    if (currentPage > 0) {
-      setCurrentPage(currentPage - 1);
-    }
-  };
-
-  const handleNextPage = () => {
-    if (currentPage < totalPages - 1) {
-      setCurrentPage(currentPage + 1);
-    }
+  const handlePageChange = (event, page) => {
+    setCurrentPage(page - 1);
   };
   
   return (
-    <div>
-      {isLoading ? (
-        <div>Loading...</div>
-      ) : (
-        <div className="ag-theme-material" style={{ height: 600, width: '100%', margin: 'auto' }}>
-          <AgGridReact rowData={journeys} columnDefs={columnDefs} />
-        </div>
-      )}
-      <div>
-        <button onClick={handlePreviousPage} disabled={currentPage === 0}>
-          Previous Page
-        </button>
-        <span>
-          Page {currentPage + 1} of {totalPages}
-        </span>
-        <button onClick={handleNextPage} disabled={currentPage === totalPages - 1}>
-          Next Page
-        </button>
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+      <div className="ag-theme-material" style={{ height: 600, width: 1200, margin: 'auto', position: 'relative' }}>
+        {isLoading && (
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              backgroundColor: 'rgba(255, 255, 255, 0.8)',
+              zIndex: 1
+            }}
+          >
+            <CircularProgress />
+          </Box>
+        )}
+        <AgGridReact rowData={journeys} columnDefs={columnDefs} />
       </div>
+      <Pagination
+        count={totalPages}
+        page={currentPage + 1}
+        onChange={handlePageChange}
+        style={{ marginTop: '1rem' }}
+      />
     </div>
   );
 }
