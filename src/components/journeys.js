@@ -10,11 +10,29 @@ export default function Journeys() {
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
+  const [sortField, setSortField] = useState('');
   const pageSize = 10;
+  const abortControllerRef = React.useRef(null);
 
-  const getJourneys = (page) => {
+
+
+  const getJourneys = (page, sort) => {
     setIsLoading(true);
-    fetch(`https://city-bike-helsinki.herokuapp.com/api/journeys?page=${page}&pageSize=${pageSize}`)
+
+    // Cancel previous request if it exists
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+
+    const abortController = new AbortController();
+    abortControllerRef.current = abortController;
+
+    const sortParam = sort ? `&sort=${sort}` : '';
+    fetch(`https://city-bike-helsinki.herokuapp.com/api/journeys?page=${page}&pageSize=${pageSize}${sortParam}`, 
+        {
+          signal: abortController.signal
+        })
+
       .then(response => response.json())
       .then(data => {
         setJourneys(data.content);
@@ -23,14 +41,22 @@ export default function Journeys() {
         setIsLoading(false);
       })
       .catch(err => {
-        console.error(err);
+        if (err.name !== 'AbortError') {
+          console.error(err);
+        }
         setIsLoading(false);
       });
   };
-  
+
   useEffect(() => {
-    getJourneys(currentPage);
-  }, [currentPage]);
+    getJourneys(currentPage, sortField);
+    return () => {
+      // Clean up by canceling any ongoing request when the component unmounts
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+    };
+  }, [currentPage, sortField]);
 
   const formatDistance = (distance) => {
     const distanceInKm = distance / 1000; // Convert meters to kilometers
@@ -58,7 +84,7 @@ export default function Journeys() {
       width: 200,
       valueFormatter: ({ value }) => {
         const returnDate = value;
-        return returnDate ? format(new Date(returnDate), 'MM/dd/yyyy k:mm') : '';
+        return returnDate ? format(new Date(returnDate), 'dd/MM/yyyy k:mm') : '';
       }
     },
     {
@@ -85,12 +111,39 @@ export default function Journeys() {
     }
   ];
   
+  
   const handlePageChange = (event, page) => {
     setCurrentPage(page - 1);
+    getJourneys(page - 1, sortField); // Pass the current page and sort value to getJourneys
   };
-  
+
+  const handleSortChange = (event) => {
+    const sortValue = event.target.value;
+    setSortField(sortValue);
+    setCurrentPage(0); // Reset the page to the first page when sorting changes
+  };
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+      <div style={{ marginBottom: '1rem' }}>
+    Sort by:
+    <select value={sortField} onChange={handleSortChange}>
+          <option value="">None</option>
+          <option value="departureDate,asc">Departure Date (Ascending)</option>
+          <option value="departureDate,desc">Departure Date (Descending)</option>
+          <option value="returnDate,asc">Return Date (Ascending)</option>
+          <option value="returnDate,desc">Return Date (Descending)</option>
+          <option value="departureStation,asc">Departure Station (Ascending)</option>
+          <option value="departureStation,desc">Departure Station (Descending)</option>
+          <option value="returnStation,asc">Return Station (Ascending)</option>
+          <option value="returnStation,desc">Return Station (Descending)</option>
+          <option value="distance,asc">Distance (Ascending)</option>
+          <option value="distance,desc">Distance (Descending)</option>
+          <option value="duration,asc">Duration (Ascending)</option>
+          <option value="duration,desc">Duration (Descending)</option>
+
+        </select>
+      </div>
       <div className="ag-theme-material" style={{ height: 600, width: 1200, margin: 'auto', position: 'relative' }}>
         {isLoading && (
           <Box

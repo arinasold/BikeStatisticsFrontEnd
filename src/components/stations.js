@@ -10,11 +10,26 @@ export default function Stations() {
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
+  const [sortField, setSortField] = useState('name,asc'); // Default sort field
   const pageSize = 10;
+  const abortControllerRef = React.useRef(null);
 
-  const getStations = (page) => {
+  const getStations = (page, sort) => {
     setIsLoading(true);
-    fetch(`https://city-bike-helsinki.herokuapp.com/api/stations?page=${page}&pageSize=${pageSize}`)
+
+     // Cancel previous request if it exists
+     if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+
+    const abortController = new AbortController();
+    abortControllerRef.current = abortController;
+
+    const sortParam = sort ? `&sort=${sort}` : ''; // Include sort parameter if provided
+    fetch(`https://city-bike-helsinki.herokuapp.com/api/stations?page=${page}&pageSize=${pageSize}${sortParam}`,
+     {
+      signal: abortController.signal
+    })
       .then(response => response.json())
       .then(data => {
         setStations(data.content);
@@ -23,14 +38,22 @@ export default function Stations() {
         setIsLoading(false);
       })
       .catch(err => {
-        console.error(err);
+        if (err.name !== 'AbortError') {
+          console.error(err);
+        }
         setIsLoading(false);
       });
   };
 
   useEffect(() => {
-    getStations(currentPage);
-  }, [currentPage]);
+    getStations(currentPage, sortField);
+    return () => {
+      // Clean up by canceling any ongoing request when the component unmounts
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+    };
+  }, [currentPage, sortField]);
 
   const columnDefs = [
     {
@@ -40,7 +63,6 @@ export default function Stations() {
       cellRendererFramework: ({ value, data }) => (
         <Link underline="none" href={`/stations/${data.id}`}>{value}</Link>
       ),
-      
     },
   ];
 
@@ -48,8 +70,21 @@ export default function Stations() {
     setCurrentPage(page - 1);
   };
 
+  const handleSortChange = (event) => {
+    const sortValue = event.target.value;
+    setSortField(sortValue);
+    setCurrentPage(0); // Reset the page to the first page when sorting changes
+  };
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+      <div style={{ marginBottom: '1rem' }}>
+        Sort by:
+        <select value={`${sortField}`} onChange={handleSortChange}>
+          <option value="name,asc">Name (Ascending)</option>
+          <option value="name,desc">Name (Descending)</option>
+        </select>
+      </div>
       <div className="ag-theme-material" style={{ height: 600, width: 350, margin: 'auto', position: 'relative' }}>
         {isLoading && (
           <Box
