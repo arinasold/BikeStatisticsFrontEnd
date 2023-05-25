@@ -5,6 +5,11 @@ import 'ag-grid-community/styles/ag-theme-material.css';
 import Link from '@mui/material/Link';
 import { Box, CircularProgress, Pagination } from '@mui/material';
 
+import MenuItem from '@mui/material/MenuItem';
+import Select, { SelectChangeEvent } from '@mui/material/Select';
+import FormControl from '@mui/material/FormControl';
+import InputLabel from '@mui/material/InputLabel';
+
 export default function Stations() {
   const [stations, setStations] = useState([]);
   const [currentPage, setCurrentPage] = useState(0);
@@ -78,14 +83,26 @@ export default function Stations() {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-      <div style={{ marginBottom: '1rem' }}>
-        Sort by:
-        <select value={`${sortField}`} onChange={handleSortChange}>
-          <option value="name,asc">Name (Ascending)</option>
-          <option value="name,desc">Name (Descending)</option>
-        </select>
-      </div>
-      <div className="ag-theme-material" style={{ height: 600, width: 350, margin: 'auto', position: 'relative' }}>
+
+
+                <FormControl sx={{ m: 1, minWidth: 120 }} size="small">
+                <InputLabel id="demo-select-small-label">Sort by</InputLabel>
+                  <Select
+                      labelId="demo-select-small-label"
+                      id="demo-select-small"
+                      value={sortField}
+                      label="Sort by"
+                      onChange={handleSortChange}
+                    >
+                            <MenuItem value="">None</MenuItem>
+                            <MenuItem value="name,asc">Name (Ascending)</MenuItem>
+                            <MenuItem value="name,desc">Name (Descending)</MenuItem>
+
+
+                  </Select>
+                </FormControl>
+
+      <div className="ag-theme-material" style={{ height: 550, width: 350, margin: 'auto', position: 'relative' }}>
         {isLoading && (
           <Box
             sx={{

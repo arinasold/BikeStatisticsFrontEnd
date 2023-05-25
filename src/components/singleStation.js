@@ -23,11 +23,6 @@ export default function SingleStation() {
     return `${distanceInKm.toFixed(2)} km`;
   };
 
-  const formatDuration = (duration) => {
-    const durationInMinutes = duration / 60; // Convert seconds to minutes
-    return `${durationInMinutes.toFixed(0)} min`;
-  };
-
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
       <div style={{ maxWidth: '1000px' }}>

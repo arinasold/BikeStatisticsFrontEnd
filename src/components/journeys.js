@@ -5,6 +5,11 @@ import 'ag-grid-community/styles/ag-theme-material.css';
 import { format } from 'date-fns';
 import { Box, CircularProgress, Pagination } from '@mui/material';
 
+import MenuItem from '@mui/material/MenuItem';
+import Select, { SelectChangeEvent } from '@mui/material/Select';
+import FormControl from '@mui/material/FormControl';
+import InputLabel from '@mui/material/InputLabel';
+
 export default function Journeys() {
   const [journeys, setJourneys] = useState([]);
   const [currentPage, setCurrentPage] = useState(0);
@@ -125,26 +130,32 @@ export default function Journeys() {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-      <div style={{ marginBottom: '1rem' }}>
-    Sort by:
-    <select value={sortField} onChange={handleSortChange}>
-          <option value="">None</option>
-          <option value="departureDate,asc">Departure Date (Ascending)</option>
-          <option value="departureDate,desc">Departure Date (Descending)</option>
-          <option value="returnDate,asc">Return Date (Ascending)</option>
-          <option value="returnDate,desc">Return Date (Descending)</option>
-          <option value="departureStation,asc">Departure Station (Ascending)</option>
-          <option value="departureStation,desc">Departure Station (Descending)</option>
-          <option value="returnStation,asc">Return Station (Ascending)</option>
-          <option value="returnStation,desc">Return Station (Descending)</option>
-          <option value="distance,asc">Distance (Ascending)</option>
-          <option value="distance,desc">Distance (Descending)</option>
-          <option value="duration,asc">Duration (Ascending)</option>
-          <option value="duration,desc">Duration (Descending)</option>
+             <FormControl sx={{ m: 1, minWidth: 120 }} size="small">
+             <InputLabel id="demo-select-small-label">Sort by</InputLabel>
+                  <Select
+                      labelId="demo-select-small-label"
+                      id="demo-select-small"
+                      value={sortField}
+                      label="Sort by"
+                      onChange={handleSortChange}
+                    >
+                            <MenuItem value="">None</MenuItem>
+                            <MenuItem value="departureDate,asc">Departure Date (Ascending)</MenuItem>
+                            <MenuItem value="departureDate,desc">Departure Date (Descending)</MenuItem>
+                            <MenuItem value="returnDate,asc">Return Date (Ascending)</MenuItem>
+                            <MenuItem value="returnDate,desc">Return Date (Descending)</MenuItem>
+                            <MenuItem value="departureStation,asc">Departure Station (Ascending)</MenuItem>
+                            <MenuItem value="departureStation,desc">Departure Station (Descending)</MenuItem>
+                            <MenuItem value="returnStation,asc">Return Station (Ascending)</MenuItem>
+                            <MenuItem value="returnStation,desc">Return Station (Descending)</MenuItem>
+                            <MenuItem value="distance,asc">Distance (Ascending)</MenuItem>
+                            <MenuItem value="distance,desc">Distance (Descending)</MenuItem>
+                            <MenuItem value="duration,asc">Duration (Ascending)</MenuItem>
+                            <MenuItem value="duration,desc">Duration (Descending)</MenuItem>
 
-        </select>
-      </div>
-      <div className="ag-theme-material" style={{ height: 600, width: 1200, margin: 'auto', position: 'relative' }}>
+                  </Select>
+                </FormControl>
+      <div className="ag-theme-material" style={{ height: 550, width: 1200, margin: 'auto', position: 'relative' }}>
         {isLoading && (
           <Box
             sx={{
