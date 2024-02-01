@@ -1,6 +1,6 @@
 # BikeStatisticsApp
 This is the web-side application for the Helsinki City Bike pre-assigment.
-You can take a look of web application [here](https://helsinki-city-bike-web.herokuapp.com/) and see the server-side code  [here](https://github.com/arinasold/BikeStatisticsApp)
+
 
 ## Technologies Used
 - Server-side: Java, Spring Boot, MySQL
